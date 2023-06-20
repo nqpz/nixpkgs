@@ -16,13 +16,13 @@ let
 in
 pythonPackages.buildPythonApplication rec {
   pname = "duplicity";
-  version = "0.8.23";
+  version = "1.2.3";
 
   src = fetchFromGitLab {
     owner = "duplicity";
     repo = "duplicity";
     rev = "rel.${version}";
-    sha256 = "0my015zc8751smjgbsysmca7hvdm96cjw5zilqn3zq971nmmrksb";
+    hash = "sha256-rQN06QnqRvqNipZwfeq/TCMPP7rnjcz/0+XZAaz3pE0=";
   };
 
   patches = [
@@ -32,6 +32,9 @@ pythonPackages.buildPythonApplication rec {
     # Our Python infrastructure runs test in installCheckPhase so we need
     # to make the testing code stop assuming it is run from the source directory.
     ./use-installed-scripts-in-test.patch
+
+    # Generally broken in Nix' build environment
+    ./disable-path-compare-test.patch
   ] ++ lib.optionals stdenv.isLinux [
     # Broken on Linux in Nix' build environment
     ./linux-disable-timezone-test.patch
@@ -59,20 +62,26 @@ pythonPackages.buildPythonApplication rec {
   ];
 
   pythonPath = with pythonPackages; [
+    azure-core
+    azure-storage-blob
     b2sdk
     boto3
-    cffi
     cryptography
-    ecdsa
-    idna
-    pygobject3
+    dropbox
     fasteners
-    lockfile
-    paramiko
-    pyasn1
-    pycrypto
-    pydrive2
     future
+    gdata
+    google-api-python-client
+    google-auth-oauthlib
+    keyring
+    paramiko
+    pexpect
+    psutil
+    pydrive2
+    python-keystoneclient
+    python-swiftclient
+    requests
+    requests-oauthlib
   ];
 
   nativeCheckInputs = [
@@ -125,7 +134,7 @@ pythonPackages.buildPythonApplication rec {
 
   meta = with lib; {
     description = "Encrypted bandwidth-efficient backup using the rsync algorithm";
-    homepage = "https://duplicity.gitlab.io/duplicity-web/";
+    homepage = "https://duplicity.gitlab.io/";
     license = licenses.gpl2Plus;
     platforms = platforms.unix;
   };
